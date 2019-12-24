@@ -22,6 +22,7 @@ public class UserService {
 
         return users;
     }
+
     public User save(User user){
         if(user.getId()==null){
             user.setId(++usersCount);
@@ -29,6 +30,7 @@ public class UserService {
         users.add(user);
         return user;
     }
+
     public User findById(Long id){
         for (User user: users) {
             if(user.getId()==id)
@@ -37,15 +39,24 @@ public class UserService {
         return null;
     }
 
-    public void deleteById(Long id){
+    public User deleteById(Long id){
         for (User user: users) {
-            if(user.getId()==id)
+            if(user.getId()==id) {
                 users.remove(user);
+                return user;
+            }
         }
-
+        return null;
     }
 
-    public User updateUser(){
-
+    public User updateUser(User user){
+        for (User u:users) {
+            if(u.getId()==user.getId()){
+                u.setName(user.getName());
+                u.setBirthdate(user.getBirthdate());
+                return u;
+            }
+        }
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.learning.restapilearning.model;
 
+import javax.persistence.Entity;
 import java.util.Date;
 
 public class User {
