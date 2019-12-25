@@ -1,7 +1,7 @@
 package com.learning.restapilearning.controller;
 
 import com.learning.restapilearning.model.User;
-import com.learning.restapilearning.service.UserService;
+import com.learning.restapilearning.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,53 +9,50 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-public class UserController {
-    @Autowired
-    UserService userService;
+public class UserJpaController {
 
-    @GetMapping("/users")
+    @Autowired
+    UserRepository userRepository;
+
+    @GetMapping("/jpa/users")
     public ResponseEntity<List<User>> findAllUsers(){
-        List<User> users = userService.findAll();
+         List<User> users = userRepository.findAll();
         if(!users.isEmpty()){
             return ResponseEntity.ok().body(users);
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PostMapping("/users")
+    @PostMapping("/jpa/users")
     public ResponseEntity<User> createUser(@Valid @RequestBody User user){
-        User u = userService.save(user);
+        User u = userRepository.save(user);
         return ResponseEntity.created(ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}").buildAndExpand(u.getId()).toUri()).body(u);
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/jpa/users/{id}")
     public ResponseEntity<User> findById(@PathVariable Long id){
-        User user = userService.findById(id);
-        if(user!=null){
-            return ResponseEntity.status(HttpStatus.OK).body(user);
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent()) {
+            return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.OK).body(user.get());
     }
 
-    @PutMapping("/users")
+    @PutMapping("/jpa/users")
     public ResponseEntity<User> update(@RequestBody User user){
-        User u = userService.updateUser(user);
+        User u = userRepository.save(user);
         if(u != null)
             return ResponseEntity.ok().body(u);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<User> deleteById(@PathVariable Long id) {
-        User user = userService.deleteById(id);
-        if (user != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(user);
-        }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @DeleteMapping("/jpa/users/{id}")
+    public void deleteById(@PathVariable Long id) {
+        userRepository.deleteById(id);
     }
 }
